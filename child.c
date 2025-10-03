@@ -35,9 +35,8 @@ int main(int argc, char **argv) {
     while ((bytes = read(STDIN_FILENO, buf, sizeof(buf) - 1)) > 0) {
         buf[bytes] = '\0';
 
-        // Динамический массив для чисел
         int *numbers = NULL;
-        int capacity = 10; // начальная емкость
+        int capacity = 10;
         int count = 0;
         
         numbers = malloc(capacity * sizeof(int));
@@ -49,7 +48,6 @@ int main(int argc, char **argv) {
 
         int i = 0;
         while (i < bytes) {
-            // Пропускаем пробелы и разделители
             while (i < bytes && (buf[i] == ' ' || buf[i] == '\t' || buf[i] == '\n' || buf[i] == '\r')) {
                 i++;
             }
@@ -58,13 +56,10 @@ int main(int argc, char **argv) {
                 break;
             }
 
-            // Парсим число
             char *endptr;
             long num = strtol(&buf[i], &endptr, 10);
             
-            // Проверяем успешность преобразования
             if (endptr != &buf[i]) {
-                // Увеличиваем массив при необходимости
                 if (count >= capacity) {
                     capacity *= 2;
                     int *new_numbers = realloc(numbers, capacity * sizeof(int));
@@ -80,7 +75,6 @@ int main(int argc, char **argv) {
                 numbers[count++] = (int)num;
                 i = endptr - buf;
             } else {
-                // Если не число, пропускаем один символ
                 i++;
             }
         }
@@ -92,7 +86,6 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        // Формируем строку операции с динамическим размером
         int op_capacity = 256;
         char *operation = malloc(op_capacity);
         if (operation == NULL) {
@@ -106,9 +99,7 @@ int main(int argc, char **argv) {
         double result = (double)numbers[0];
 
         for (int i = 1; i < count; i++) {
-            // Проверяем деление на ноль
             if (numbers[i] == 0) {
-                // Добавляем текущее число к операции
                 int needed = snprintf(NULL, 0, " / %d", numbers[i]);
                 if (op_len + needed >= op_capacity) {
                     op_capacity = op_len + needed + 64;
@@ -124,7 +115,6 @@ int main(int argc, char **argv) {
                 }
                 op_len += snprintf(operation + op_len, op_capacity - op_len, " / %d", numbers[i]);
 
-                // Записываем ошибку
                 write(file, operation, op_len);
                 const char error_msg[] = " = error: division by zero\n";
                 write(file, error_msg, sizeof(error_msg) - 1);
@@ -138,7 +128,6 @@ int main(int argc, char **argv) {
                 exit(EXIT_FAILURE);
             }
             
-            // Добавляем число к операции
             int needed = snprintf(NULL, 0, " / %d", numbers[i]);
             if (op_len + needed >= op_capacity) {
                 op_capacity = op_len + needed + 64;
@@ -157,7 +146,6 @@ int main(int argc, char **argv) {
             result /= numbers[i];
         }
 
-        // Записываем успешный результат
         char result_str[64];
         snprintf(result_str, sizeof(result_str), " = %.6f\n", result);
         
@@ -170,7 +158,6 @@ int main(int argc, char **argv) {
         
         fsync(STDOUT_FILENO);
 
-        // Освобождаем память
         free(operation);
         free(numbers);
     }
