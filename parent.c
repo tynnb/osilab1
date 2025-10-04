@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <string.h>
 
 static char CHILD_PROCESS_NAME[] = "child";
